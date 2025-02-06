@@ -1,5 +1,6 @@
 import './styles/index.css';
-import { createCard, deleteCard, initialCards } from './scripts/cards.js';
+import { createCard, deleteCard } from './scripts/card.js';
+import { initialCards } from './scripts/cards.js';
 import { openPopup, closePopup } from './scripts/modal.js';
 
 // DOM-элементы
@@ -13,6 +14,9 @@ const addForm = document.forms['new-place'];
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
 
+function handleLikeClick(event) {
+  event.target.classList.toggle('card__like-button_is-active');
+}
 function openImagePopup(imageUrl, caption) {
   const imagePopup = document.querySelector('.popup_type_image');
   const popupImage = imagePopup.querySelector('.popup__image');
@@ -56,7 +60,7 @@ addForm.addEventListener('submit', function (event) {
     link: linkInput.value,
   };
 
-  const cardElement = createCard(newCard, deleteCard, openImagePopup);
+  const cardElement = createCard(newCard, handleLikeClick, deleteCard, openImagePopup);
   placesList.prepend(cardElement);
 
   addForm.reset();
@@ -72,6 +76,6 @@ document.querySelectorAll('.popup__close').forEach(button => {
 
 // Отображение начальных карточек
 initialCards.forEach((fullCard) => {
-  const cardElement = createCard(fullCard, deleteCard, openImagePopup);
+  const cardElement = createCard(fullCard, handleLikeClick, deleteCard, openImagePopup);
   placesList.append(cardElement);
 });
