@@ -12,4 +12,4 @@ npm install
 npm run dev
 ```
 ### Посмотреть сайт
-https://dm1triss.github.io/mesto/
+https://dm1triss.github.io/mestoPR/
