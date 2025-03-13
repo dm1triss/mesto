@@ -1,15 +1,15 @@
-export const validationConfig = ({
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error'
-}); 
+export const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+};
 
 // Функция для валидации формы
 export function enableValidation(form) {
-  const inputs = form.querySelectorAll(".popup__input");
-  const submitButton = form.querySelector(".popup__button");
+  const inputs = form.querySelectorAll(validationConfig.inputSelector);
+  const submitButton = form.querySelector(validationConfig.submitButtonSelector);
 
   let isFormValid = true;
 
@@ -19,72 +19,88 @@ export function enableValidation(form) {
     const regex = /^[a-zA-Zа-яА-ЯёЁ\s-]+$/;
 
     if (input.name === "link") {
-      const urlRegex =
-        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
+      const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
       if (urlRegex.test(input.value)) {
-        input.style.borderBottom = "";
+        input.classList.remove("input-error");
         errorMessage.textContent = "";
-        errorMessage.style.display = "none";
+        errorMessage.classList.add("hidden");
+        errorMessage.classList.remove("error-visible");
       } else {
         isFormValid = false;
-        input.style.borderBottom = "1px solid #f00";
+        input.classList.add("input-error");
         errorMessage.textContent = "Введите адрес сайта.";
-        errorMessage.style.display = "block";
+        errorMessage.classList.remove("hidden");
+        errorMessage.classList.add("error-visible");
       }
-    } else if (input.value.trim() === "") {
-      isFormValid = false;
-      input.style.borderBottom = "1px solid #f00";
-      errorMessage.textContent = "Вы пропустили это поле.";
-      errorMessage.style.display = "block";
-    } else if (input.value.length === 1) {
-      isFormValid = false;
-      input.style.borderBottom = "1px solid #f00";
-      errorMessage.textContent = input.validationMessage;
-      errorMessage.style.display = "block";
-    } else if (!regex.test(input.value)) {
-      isFormValid = false;
-      input.style.borderBottom = "1px solid #f00";
-      errorMessage.style.display = "block";
-      errorMessage.textContent = customErrorMessage;
     } else {
-      input.style.borderBottom = "";
-      errorMessage.textContent = "";
-      errorMessage.style.display = "none";
+      if (input.value.trim() === "") {
+        isFormValid = false;
+        input.classList.add("input-error");
+        errorMessage.textContent = "Вы пропустили это поле.";
+        errorMessage.classList.remove("hidden");
+        errorMessage.classList.add("error-visible");
+      } else if (input.value.length === 1) {
+        isFormValid = false;
+        input.classList.add("input-error");
+        errorMessage.textContent = input.validationMessage || "Недостаточно символов.";
+        errorMessage.classList.remove("hidden");
+        errorMessage.classList.add("error-visible");
+      } else if (!regex.test(input.value)) {
+        isFormValid = false;
+        input.classList.add("input-error");
+        errorMessage.textContent = customErrorMessage || "Недопустимые символы.";
+        errorMessage.classList.remove("hidden");
+        errorMessage.classList.add("error-visible");
+      } else {
+        input.classList.remove("input-error");
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+        errorMessage.classList.remove("error-visible");
+      }
     }
   });
 
   if (isFormValid) {
     submitButton.disabled = false;
-    submitButton.classList.remove("popup__button_disabled");
-    submitButton.classList.add("submitButton");
+    submitButton.classList.remove(validationConfig.inactiveButtonClass);
+    submitButton.classList.add(validationConfig.submitButtonSelector);
   } else {
     submitButton.disabled = true;
-    submitButton.classList.remove("submitButton");
-    submitButton.classList.add("popup__button_disabled");
+    submitButton.classList.remove(validationConfig.submitButtonSelector);
+    submitButton.classList.add(validationConfig.inactiveButtonClass);
   }
 }
 
-// Обработчик события input для всех форм
 document.addEventListener("input", function (event) {
-  if (event.target.classList.contains("popup__input")) {
-    const form = event.target.closest(".popup__form");
-    enableValidation(form);
+  if (event.target.matches(validationConfig.inputSelector)) {
+    const form = event.target.closest(validationConfig.formSelector);
+    if (form) {
+      enableValidation(form);
+    }
   }
 });
 
-export function clearValidation(form, validationConfig) {
+
+export function clearValidation(form) {
+  if (!form || !(form instanceof HTMLFormElement)) return;
+
   const inputs = form.querySelectorAll(validationConfig.inputSelector);
   const submitButton = form.querySelector(validationConfig.submitButtonSelector);
 
   inputs.forEach((input) => {
     const errorMessage = input.nextElementSibling;
-    input.style.borderBottom = "";
+    if (!errorMessage) return;
+
+    input.classList.remove("input-error");
     errorMessage.textContent = "";
+    errorMessage.classList.add("hidden");
+    errorMessage.classList.remove("error-visible");
     input.value = "";
-    errorMessage.style.display = "none";
   });
-  
-  submitButton.disabled = true;
-  submitButton.classList.remove(validationConfig.submitButtonSelector); 
-  submitButton.classList.add(validationConfig.inactiveButtonClass); 
+
+  if (submitButton) { 
+    submitButton.disabled = true;
+    submitButton.classList.remove(validationConfig.submitButtonSelector);
+    submitButton.classList.add(validationConfig.inactiveButtonClass);
+  }
 }

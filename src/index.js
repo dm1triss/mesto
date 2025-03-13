@@ -1,7 +1,7 @@
 import "./styles/index.css";
 import { createCard, deleteCard } from "./scripts/card.js";
-import { openPopup, closePopup } from "./scripts/modal.js";
-import {enableValidation,clearValidation, validationConfig,} from "./scripts/validation.js";
+import { openPopup, closePopup, resetPopupForm,handleLikeClick } from "./scripts/modal.js";
+import {clearValidation, validationConfig} from "./scripts/validation.js";
 import { updateAvatar, updateUserProfile, addNewCard, getInitialCards, getInitialUser  } from "./scripts/api.js";
 
 let userId;
@@ -19,20 +19,18 @@ const addForm = document.forms["new-place"];
 const avatarForm = document.forms["avatar"];
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
-
-function handleLikeClick(event) {
-  event.target.classList.toggle("card__like-button_is-active");
-}
+const imagePopup = document.querySelector(".popup_type_image");
+const popupImage = imagePopup.querySelector(".popup__image");
+const popupCaption = imagePopup.querySelector(".popup__caption");
+const editInput = editForm.elements.name;
+const addInput = addForm.elements.name;
+const linkInput = addForm.elements.link;
+const descriptionInput = editForm.elements.description;
 
 function openImagePopup(imageUrl, caption) {
-  const imagePopup = document.querySelector(".popup_type_image");
-  const popupImage = imagePopup.querySelector(".popup__image");
-  const popupCaption = imagePopup.querySelector(".popup__caption");
-
   popupImage.src = imageUrl;
   popupImage.alt = caption;
   popupCaption.textContent = caption;
-
   openPopup(imagePopup);
 }
 
@@ -48,15 +46,12 @@ addButton.addEventListener("click", () => {
 
 editForm.addEventListener("submit", function (event) {
   event.preventDefault();
-  
-  const nameInput = editForm.elements.name;
-  const descriptionInput = editForm.elements.description;
   const saveButton = editForm.querySelector(".popup__button"); 
 
   saveButton.textContent = "Сохранение...";
   saveButton.disabled = true;
 
-  updateUserProfile(nameInput.value, descriptionInput.value)
+  updateUserProfile(editInput.value, descriptionInput.value)
     .then((data) => {
       profileTitle.textContent = data.name;
       profileDescription.textContent = data.about;
@@ -75,14 +70,12 @@ editForm.addEventListener("submit", function (event) {
 
 addForm.addEventListener("submit", function (event) {
   event.preventDefault();
-  const nameInput = addForm.elements.name;
-  const linkInput = addForm.elements.link;
   const saveButton = addForm.querySelector(".popup__button"); 
 
   saveButton.textContent = "Сохранение...";
   saveButton.disabled = true;
 
-  addNewCard(nameInput.value, linkInput.value)
+  addNewCard(addInput.value, linkInput.value)
     .then((data) => {
       const cardElement = createCard(
         data,
@@ -134,7 +127,6 @@ avatarForm.addEventListener("submit", function (event) {
     });
 });
 
-
  profileImage.addEventListener("click", () => {
   openPopup(profileChangeAvatar);
  }) 
@@ -142,28 +134,23 @@ avatarForm.addEventListener("submit", function (event) {
 document.querySelectorAll(".popup__close").forEach((button) => {
   button.addEventListener("click", () => {
     const popup = button.closest(".popup");
-    clearValidation(addForm, validationConfig);
-    clearValidation(editForm, validationConfig);
+    resetPopupForm(popup);
     closePopup(popup);
   });
 });
 
-// Загрузка данных пользователя и карточек
-getInitialUser()
-  .then((userData) => {
-    userId = userData._id; 
+Promise.all([getInitialUser(), getInitialCards()])
+  .then(([userData, cards]) => {
+    userId = userData._id;
     profileTitle.textContent = userData.name; // Обновляем имя
     profileDescription.textContent = userData.about; // Обновляем описание
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
 
-    return getInitialCards();
-  })
-  .then((cards) => {
     cards.forEach((card) => {
       const cardElement = createCard(
         card,
         handleLikeClick,
-        userId, 
+        userId,
         deleteCard,
         openImagePopup
       );
@@ -171,3 +158,4 @@ getInitialUser()
     });
   })
   .catch((err) => console.log("Ошибка при загрузке данных:", err));
+
