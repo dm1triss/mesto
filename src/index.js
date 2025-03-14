@@ -1,7 +1,7 @@
 import "./styles/index.css";
 import { createCard, deleteCard } from "./scripts/card.js";
-import { openPopup, closePopup, resetPopupForm,handleLikeClick } from "./scripts/modal.js";
-import {clearValidation, validationConfig} from "./scripts/validation.js";
+import { openPopup, closePopup,handleLikeClick } from "./scripts/modal.js";
+import {enableValidation, clearValidation, validationConfig} from "./scripts/validation.js";
 import { updateAvatar, updateUserProfile, addNewCard, getInitialCards, getInitialUser  } from "./scripts/api.js";
 
 let userId;
@@ -22,6 +22,8 @@ const profileDescription = document.querySelector(".profile__description");
 const imagePopup = document.querySelector(".popup_type_image");
 const popupImage = imagePopup.querySelector(".popup__image");
 const popupCaption = imagePopup.querySelector(".popup__caption");
+const popupClose = document.querySelectorAll(".popup__close")
+const avatarInput = avatarForm.querySelector('input[name="link"]');
 const editInput = editForm.elements.name;
 const addInput = addForm.elements.name;
 const linkInput = addForm.elements.link;
@@ -103,9 +105,7 @@ addForm.addEventListener("submit", function (event) {
 
 avatarForm.addEventListener("submit", function (event) {
   event.preventDefault();
-  const avatarInput = avatarForm.querySelector('input[name="link"]');
   const saveButton = avatarForm.querySelector(".popup__button"); 
-  const profileImage = document.querySelector(".profile__image");
 
   saveButton.textContent = "Сохранение...";
   saveButton.disabled = true;
@@ -131,10 +131,9 @@ avatarForm.addEventListener("submit", function (event) {
   openPopup(profileChangeAvatar);
  }) 
 
-document.querySelectorAll(".popup__close").forEach((button) => {
+ popupClose.forEach((button) => {
   button.addEventListener("click", () => {
     const popup = button.closest(".popup");
-    resetPopupForm(popup);
     closePopup(popup);
   });
 });
@@ -142,8 +141,8 @@ document.querySelectorAll(".popup__close").forEach((button) => {
 Promise.all([getInitialUser(), getInitialCards()])
   .then(([userData, cards]) => {
     userId = userData._id;
-    profileTitle.textContent = userData.name; // Обновляем имя
-    profileDescription.textContent = userData.about; // Обновляем описание
+    profileTitle.textContent = userData.name; 
+    profileDescription.textContent = userData.about; 
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
 
     cards.forEach((card) => {
@@ -159,3 +158,4 @@ Promise.all([getInitialUser(), getInitialCards()])
   })
   .catch((err) => console.log("Ошибка при загрузке данных:", err));
 
+  enableValidation(validationConfig);
