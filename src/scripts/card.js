@@ -85,3 +85,8 @@ export function createCard(
 export function deleteCard(cardElement) {
   cardElement.remove();
 }
+
+// Обработка клика по лайку
+export function handleLikeClick(event) {
+  event.target.classList.toggle('card__like-button_is-active');
+}
