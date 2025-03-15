@@ -101,10 +101,3 @@ export const clearValidation = (form, config) => {
     submitButton.classList.add(config.inactiveButtonClass);
   }
 };
-
-export const clearErrors = (form, config) => {
-  if (!form || !(form instanceof HTMLFormElement)) return;
-
-  const inputs = Array.from(form.querySelectorAll(config.inputSelector));
-  inputs.forEach(input => hideInputError(input, config));
-};
