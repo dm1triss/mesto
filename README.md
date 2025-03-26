@@ -12,3 +12,4 @@ npm install
 npm run dev
 ```
 ### Посмотреть сайт
+https://dm1triss.github.io/mestoview/
